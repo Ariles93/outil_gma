@@ -1,2 +1,34 @@
-/vendor/
+# Logs
+*.log
+logs/
+*.tmp
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Node.js / npm (si tu utilises npm)
+node_modules/
+package-lock.json
+
+# Environnement local / configuration sensible
 .env
+config.php
+
+# Cache et fichiers temporaires
+*.cache
+*.swp
+*.bak
+
+# Composer (si PHP)
+vendor/
+
+# IDE / éditeurs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Autres fichiers à ignorer
+*.sqlite
+*.db
