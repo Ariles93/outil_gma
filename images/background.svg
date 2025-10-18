@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+
+  <defs>
+
+    <filter id="blur-filter" x="-100%" y="-100%" width="400%" height="400%">
+
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5"/>
+
+    </filter>
+
+  </defs>
+
+
+
+  <rect width="1920" height="1080" fill="#fafff0"/>
+
+
+
+  <circle cx="1800" cy="150" r="450" fill="#fde047" filter="url(#blur-filter)"/>
+
+  <circle cx="100" cy="950" r="350" fill="#d9f99d" filter="url(#blur-filter)" opacity="0.9"/>
+
+  <ellipse cx="1000" cy="500" rx="600" ry="400" fill="#fef3c7" filter="url(#blur-filter)" />
+
+  <rect x="500" y="100" width="600" height="400" fill="#fed7aa" filter="url(#blur-filter)" transform="rotate(20 800 300)"/>
+
+</svg>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <!-- Cercle rouge -->
+  <circle cx="150" cy="150" r="140" fill="#e30613"/>
+
+  <!-- Texte principal -->
+  <text x="95" y="145"
+        fill="#ffffff"
+        font-family="Poppins, Arial, sans-serif"
+        font-weight="900"
+        font-size="64">
+    Crous
+  </text>
+
+  <!-- Sous-texte -->
+  <text x="120" y="185"
+        fill="#ffffff"
+        font-family="Poppins, Arial, sans-serif"
+        font-weight="900"
+        font-size="28">
+    Versailles
+  </text>
+</svg>
