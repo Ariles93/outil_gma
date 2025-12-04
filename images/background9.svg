@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+  <defs><filter id="b"><feGaussianBlur stdDeviation="70"/></filter></defs>
+  <rect width="1920" height="1080" fill="#ecfeff"/>
+  <circle cx="1700" cy="300" r="480" fill="#67e8f9" filter="url(#b)" opacity="0.75"/>
+  <circle cx="300" cy="850" r="420" fill="#a5f3fc" filter="url(#b)" opacity="0.7"/>
+  <ellipse cx="950" cy="530" rx="700" ry="400" fill="#cffafe" filter="url(#b)" opacity="0.85"/>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+  <defs>
+    <filter id="blurX" x="-200%" y="-200%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="55"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#fff7ed"/>
+
+  <circle cx="1800" cy="230" r="450" fill="#fdba74" filter="url(#blurX)" opacity="0.8"/>
+  <circle cx="200" cy="880" r="380" fill="#fca5a5" filter="url(#blurX)" opacity="0.75"/>
+  <ellipse cx="1000" cy="540" rx="650" ry="430" fill="#fed7aa" filter="url(#blurX)" opacity="0.7"/>
+  <rect x="520" y="100" width="700" height="450" fill="#fef3c7" transform="rotate(15 870 325)" opacity="0.7" filter="url(#blurX)"/>
+  <circle cx="900" cy="820" r="300" fill="#f5d0fe" filter="url(#blurX)" opacity="0.5"/>
+</svg>
