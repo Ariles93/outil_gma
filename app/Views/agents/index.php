@@ -1,5 +1,15 @@
 <?php include __DIR__ . '/../partials/header.php'; ?>
 
+<?php if (isset($_SESSION['error_message'])): ?>
+    <div class="alert alert-error"><?= e($_SESSION['error_message']) ?></div>
+    <?php unset($_SESSION['error_message']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success_message'])): ?>
+    <div class="alert alert-success"><?= e($_SESSION['success_message']) ?></div>
+    <?php unset($_SESSION['success_message']); ?>
+<?php endif; ?>
+
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
     <h2>Rechercher un agent</h2>
     <?php if ($_SESSION['user_role'] === 'admin'): ?>

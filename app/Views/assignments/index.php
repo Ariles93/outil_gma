@@ -85,14 +85,6 @@
                             <?php endif; ?>
                         </td>
                         <td>
-                            <?php if (!$assignment['returned_at'] && in_array($_SESSION['user_role'], ['admin', 'gestionnaire'])): ?>
-                                <form method="post" action="<?= url('assignments/return') ?>" style="display:inline;">
-                                    <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
-                                    <input type="hidden" name="assignment_id" value="<?= e($assignment['id']) ?>">
-                                    <button type="submit" class="btn btn-sm btn-primary"
-                                        onclick="return confirm('Confirmer le retour ?')">Retourner</button>
-                                </form>
-                            <?php endif; ?>
                             <a href="<?= url('assignments/pdf?id=' . $assignment['id']) ?>" class="btn btn-sm btn-secondary"
                                 target="_blank">PDF</a>
                         </td>

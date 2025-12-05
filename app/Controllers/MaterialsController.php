@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Models\Material;
+use App\Models\Log;
 use PDO;
 
 class MaterialsController extends Controller
@@ -110,7 +111,12 @@ class MaterialsController extends Controller
         }
 
         $materialModel = new Material();
-        $materialModel->create($data);
+        $newId = $materialModel->create($data);
+
+        $logModel = new Log();
+        $logModel->create($_SESSION['user_id'], 'create_material', "Ajout du matériel ID $newId : " . $data['brand'] . " " . $data['model']);
+
+        $_SESSION['success_message'] = "Matériel ajouté avec succès.";
 
         $this->redirect('/materials');
     }
@@ -179,6 +185,11 @@ class MaterialsController extends Controller
         $materialModel = new Material();
         $materialModel->update($id, $data);
 
+        $logModel = new Log();
+        $logModel->create($_SESSION['user_id'], 'update_material', "Modification du matériel ID $id");
+
+        $_SESSION['success_message'] = "Matériel modifié avec succès.";
+
         $this->redirect('/materials');
     }
     public function delete()
@@ -200,12 +211,18 @@ class MaterialsController extends Controller
         $material = $materialModel->findById($id);
 
         if ($material && $material['status'] === 'assigned') {
-            // In a real app, we would pass an error message to the view
-            // For now, let's just die or redirect with error (if we had flash messages)
-            die("Impossible de supprimer un matériel attribué.");
+            // Flash error message
+            $_SESSION['error_message'] = "Impossible de supprimer un matériel attribué.";
+            $this->redirect('/materials');
+            return;
         }
 
         $materialModel->delete($id);
+
+        $logModel = new Log();
+        $logModel->create($_SESSION['user_id'], 'delete_material', "Suppression (corbeille) du matériel ID $id");
+
+        $_SESSION['success_message'] = "Le matériel a bien été mis à la corbeille.";
 
         $this->redirect('/materials');
     }

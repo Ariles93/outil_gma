@@ -2,7 +2,9 @@
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
     <h2>Liste du Matériel</h2>
-    <a href="<?= url('/') ?>" class="btn btn-primary">Tableau de bord</a>
+    <?php if (in_array($_SESSION['user_role'], ['admin', 'gestionnaire'])): ?>
+        <a href="<?= url('materials/create') ?>" class="btn btn-primary">Ajouter un matériel</a>
+    <?php endif; ?>
 </div>
 
 <?php if (isset($_SESSION['error_message'])): ?>
@@ -24,9 +26,6 @@
             <a href="<?= url('materials') ?>" class="btn btn-secondary">Réinitialiser</a>
             <a href="<?= url('exports/materials') ?>?<?= http_build_query($_GET) ?>" class="btn btn-secondary"
                 target="_blank">Exporter CSV</a>
-            <?php if (in_array($_SESSION['user_role'], ['admin', 'gestionnaire'])): ?>
-                <a href="<?= url('materials/create') ?>" class="btn btn-primary">Ajouter un matériel</a>
-            <?php endif; ?>
         </div>
     </form>
 </div>
@@ -145,7 +144,7 @@
                 <?php $queryParams['page'] = $pagination['current_page'] + 1; ?>
                 <a href="<?= url('materials') ?>?<?= http_build_query($queryParams) ?>">Suivant &raquo;</a>
             <?php endif; ?>
-        </div>
+        </div><br />
     <?php endif; ?>
 </div>
 

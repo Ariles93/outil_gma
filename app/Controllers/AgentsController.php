@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Models\Agent;
 use App\Models\Assignment;
+use App\Models\Log;
 
 class AgentsController extends Controller
 {
@@ -102,6 +103,11 @@ class AgentsController extends Controller
         $agentModel = new Agent();
         $id = $agentModel->create($data);
 
+        $logModel = new Log();
+        $logModel->create($_SESSION['user_id'], 'create_agent', "Ajout de l'agent ID $id : " . $data['first_name'] . " " . $data['last_name']);
+
+        $_SESSION['success_message'] = "Agent ajouté avec succès.";
+
         $this->redirect('/agents');
     }
     public function edit()
@@ -161,6 +167,11 @@ class AgentsController extends Controller
         $agentModel = new Agent();
         $agentModel->update($id, $data);
 
-        $this->redirect('agents');
+        $logModel = new Log();
+        $logModel->create($_SESSION['user_id'], 'update_agent', "Modification de l'agent ID $id");
+
+        $_SESSION['success_message'] = "Agent modifié avec succès.";
+
+        $this->redirect('/agents');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Models\Assignment;
 use App\Models\Agent;
+use App\Models\Log;
 use Exception;
 
 class AssignmentsController extends Controller
@@ -76,6 +77,9 @@ class AssignmentsController extends Controller
             $assignmentModel = new Assignment();
             $assignmentId = $assignmentModel->create($data);
 
+            $logModel = new Log();
+            $logModel->create($_SESSION['user_id'], 'assign_material', "Attribution ID $assignmentId : Agent " . $data['agent_id'] . " - Material " . $data['material_id']);
+
             // Redirect to agent view with download parameter
             $this->redirect('/agents/view?id=' . $data['agent_id'] . '&download_pdf=' . $assignmentId);
 
@@ -111,6 +115,9 @@ class AssignmentsController extends Controller
         try {
             $assignmentModel = new Assignment();
             $result = $assignmentModel->markAsReturned($assignmentId);
+
+            $logModel = new Log();
+            $logModel->create($_SESSION['user_id'], 'return_material', "Retour matériel pour attribution ID $assignmentId");
 
             header('Content-Type: application/json');
             echo json_encode(['success' => true, 'assignment_id' => $assignmentId]);
