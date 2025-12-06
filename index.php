@@ -12,6 +12,7 @@ use App\Controllers\UsersController;
 use App\Controllers\TrashController;
 use App\Controllers\CategoriesController;
 use App\Controllers\ExportsController;
+use App\Controllers\LegalController;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -55,6 +56,7 @@ require_once __DIR__ . '/app/Controllers/UsersController.php';
 require_once __DIR__ . '/app/Controllers/TrashController.php';
 require_once __DIR__ . '/app/Controllers/CategoriesController.php';
 require_once __DIR__ . '/app/Controllers/ExportsController.php';
+require_once __DIR__ . '/app/Controllers/LegalController.php';
 
 $router = new Router();
 
@@ -125,6 +127,9 @@ $router->get('/exports/agents', [ExportsController::class, 'exportAgents']);
 
 // 10. API
 $router->get('/api/materials/search', [MaterialsController::class, 'apiSearch']);
+
+// 12. Legal
+$router->get('/cgu', [LegalController::class, 'cgu']);
 
 // 11. Dispatch
 $router->dispatch();

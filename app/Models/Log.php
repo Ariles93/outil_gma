@@ -6,23 +6,31 @@ use App\Core\Model;
 
 class Log extends Model
 {
-    public function findAll()
+    public function paginate($page = 1, $perPage = 20)
     {
-        // Assuming a logs table exists with user_id, action, details, created_at
-        // If not, this will fail, but we'll cross that bridge if we get there.
-        // We join with users to get the username if possible, or just display raw logs.
-        // Let's assume a simple structure first.
+        $offset = ($page - 1) * $perPage;
 
-        // Check if users table exists and has name? User model shows it uses 'users' table.
-        // Let's try to join with users.
+        // Get total count
+        $countStmt = $this->db->query("SELECT COUNT(*) FROM logs");
+        $total = $countStmt->fetchColumn();
 
-        $stmt = $this->db->query("
+        // Get paginated data
+        $stmt = $this->db->prepare("
             SELECT l.*, u.email as user_email
             FROM logs l
             LEFT JOIN users u ON l.user_id = u.id
             ORDER BY l.created_at DESC
+            LIMIT :limit OFFSET :offset
         ");
-        return $stmt->fetchAll();
+
+        $stmt->bindValue(':limit', $perPage, \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+        $stmt->execute();
+
+        return [
+            'data' => $stmt->fetchAll(),
+            'total' => $total
+        ];
     }
 
     public function create($userId, $action, $details = null)

@@ -10,18 +10,29 @@ class LogsController extends Controller
     public function index()
     {
         if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
-            $this->redirect('/login');
+            $this->redirect('login');
         }
+
+        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $perPage = 20;
 
         $logModel = new Log();
         try {
-            $logs = $logModel->findAll();
+            $result = $logModel->paginate($page, $perPage);
+            $logs = $result['data'];
+            $totalLogs = $result['total'];
+            $totalPages = ceil($totalLogs / $perPage);
         } catch (\Exception $e) {
-            // If table doesn't exist or other error, handle gracefully
             $logs = [];
+            $totalPages = 0;
             $error = "Impossible de récupérer les logs : " . $e->getMessage();
         }
 
-        $this->view('logs/index', ['logs' => $logs, 'error' => $error ?? null]);
+        $this->view('logs/index', [
+            'logs' => $logs,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'error' => $error ?? null
+        ]);
     }
 }

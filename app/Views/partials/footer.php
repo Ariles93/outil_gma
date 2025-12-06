@@ -3,7 +3,9 @@
 ?>
 </main>
 <footer>
-    <small>© <?= date('Y') ?> - Gestion du Matériel du Parc du Crous de Versailles. Tous droits réservés.</small>
+    <small>© <?= date('Y') ?> - Gestion du Matériel du Parc du Crous de Versailles. Tous droits réservés. | <a
+            href="<?= url('cgu') ?>" style="color: inherit; text-decoration: underline;">Mentions Légales &
+            CGU</a></small>
 </footer>
 
 <script>
