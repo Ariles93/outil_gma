@@ -34,6 +34,9 @@
         <input id="inventory_number" name="inventory_number" type="text"
             value="<?= e($material['inventory_number'] ?? '') ?>"><br><br>
 
+        <label for="asset_tag">Etiquette (Asset Tag):</label>
+        <input id="asset_tag" name="asset_tag" type="text" value="<?= e($material['asset_tag'] ?? '') ?>"><br><br>
+
         <label for="purchase_date">Date d'achat:</label>
         <input id="purchase_date" name="purchase_date" type="date"
             value="<?= e($material['purchase_date'] ?? '') ?>"><br><br>

@@ -89,30 +89,28 @@
         const selectedMaterialId = document.getElementById('selected_material_id');
         const form = document.getElementById('assignmentForm');
         let selectedDiv = null;
+        let debounceTimer;
 
         function displayResults(materials) {
             resultsContainer.innerHTML = '';
             if (materials.length === 0) {
-                resultsContainer.innerHTML = '<div class="result-item">Aucun matériel trouvé.</div>';
+                resultsContainer.innerHTML = '<div class="result-item">Aucun matériel disponible trouvé.</div>';
             } else {
                 materials.forEach(mat => {
                     const div = document.createElement('div');
                     div.classList.add('result-item');
 
-                    let statusText = '';
+                    // Backend verifies availability, but we keep this check just in case
                     if (mat.status !== 'available') {
-                        statusText = ` <span class="status-assigned">(Déjà attribué)</span>`;
                         div.style.opacity = '0.6';
+                        div.innerHTML = `<strong>${mat.type} ${mat.brand} ${mat.model}</strong> <span class="status-assigned">(Déjà attribué)</span>`;
                     } else {
-                        div.dataset.id = mat.id; // Only add data-id if available
-                    }
+                        div.dataset.id = mat.id;
+                        div.innerHTML = `
+                            <strong>${mat.type} ${mat.brand} ${mat.model}</strong>
+                            <span>S/N: ${mat.serial_number || '-'} | Asset: ${mat.asset_tag || '-'}</span>
+                        `;
 
-                    div.innerHTML = `
-                    <strong>${mat.type} ${mat.brand} ${mat.model}</strong> ${statusText}
-                    <span>S/N: ${mat.serial_number || '-'} | Asset: ${mat.asset_tag || '-'}</span>
-                `;
-
-                    if (mat.status === 'available') {
                         div.addEventListener('click', function () {
                             if (selectedDiv) {
                                 selectedDiv.classList.remove('selected');
@@ -120,8 +118,9 @@
                             this.classList.add('selected');
                             selectedDiv = this;
                             selectedMaterialId.value = this.dataset.id;
-                            searchInput.value = `${mat.type} ${mat.brand} (S/N: ${mat.serial_number})`;
-                            resultsContainer.style.display = 'none'; // Cacher les résultats après sélection
+                            // Update input but keep it searchable if needed? No, usually we show the selected item name
+                            searchInput.value = `${mat.type} ${mat.brand} ${mat.model} (${mat.serial_number})`;
+                            resultsContainer.style.display = 'none';
                         });
                     }
                     resultsContainer.appendChild(div);
@@ -130,11 +129,23 @@
         }
 
         function performSearch(query) {
+            // Show loading state if needed
+            resultsContainer.innerHTML = '<div class="result-item" style="color:var(--color-text-muted);">Recherche en cours...</div>';
+            resultsContainer.style.display = 'block';
+
             fetch(`<?= url('api/materials/search') ?>?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.error || 'Erreur serveur'); });
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    resultsContainer.style.display = 'block';
                     displayResults(data.results);
+                })
+                .catch(err => {
+                    console.error('Erreur:', err);
+                    resultsContainer.innerHTML = `<div class="result-item" style="color:var(--color-danger);">Erreur: ${err.message}</div>`;
                 });
         }
 
@@ -142,27 +153,45 @@
         if (selectedMaterialId.value > 0) {
             resultsContainer.style.display = 'none';
         } else {
+            // Optional: Load initial list or wait for user to type
             performSearch('');
         }
 
-        // 2. Logique quand l'utilisateur clique dans la barre de recherche
+        // 2. Logique quand l'utilisateur clique ou focus
         searchInput.addEventListener('focus', function () {
-            resultsContainer.style.display = 'block';
-        });
-
-        // 3. Logique quand l'utilisateur tape du texte
-        searchInput.addEventListener('keyup', function () {
-            const query = searchInput.value;
-            selectedMaterialId.value = ''; // Reset on new search
-            if (selectedDiv) {
-                selectedDiv.classList.remove('selected');
-                selectedDiv = null;
+            if (this.value === '' || !selectedMaterialId.value) {
+                resultsContainer.style.display = 'block';
+                if (resultsContainer.innerHTML === '') {
+                    performSearch('');
+                }
             }
-            performSearch(query);
         });
 
-        // === NOUVEAU : On charge la liste initiale au chargement de la page ===
-        performSearch('');
+        // 3. Logique quand l'utilisateur tape (Debounce)
+        searchInput.addEventListener('input', function () {
+            const query = searchInput.value;
+
+            // If user clears the input, reset selection
+            if (query === '') {
+                selectedMaterialId.value = '';
+                if (selectedDiv) {
+                    selectedDiv.classList.remove('selected');
+                    selectedDiv = null;
+                }
+            }
+
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                performSearch(query);
+            }, 300); // 300ms delay
+        });
+
+        // Hide results when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.style.display = 'none';
+            }
+        });
     });
 </script>
 

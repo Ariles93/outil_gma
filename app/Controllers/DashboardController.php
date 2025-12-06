@@ -54,11 +54,79 @@ class DashboardController extends Controller
         ");
         $recent_returns = $recent_returns_query->fetchAll();
 
+        // 5. Données pour le graphique de répartition par catégorie
+        $category_stats_query = $pdo->query("
+            SELECT c.name, COUNT(m.id) as count 
+            FROM materials m 
+            JOIN categories c ON m.category_id = c.id 
+            WHERE m.deleted_at IS NULL 
+            GROUP BY c.name
+        ");
+        $category_stats = $category_stats_query->fetchAll(PDO::FETCH_ASSOC);
+
+        // 6. Données pour le graphique d'évolution des attributions (12 derniers mois)
+        $history_stats_query = $pdo->query("
+            SELECT DATE_FORMAT(assigned_at, '%Y-%m') as month, COUNT(*) as count 
+            FROM assignments 
+            WHERE assigned_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH) 
+            GROUP BY month 
+            ORDER BY month ASC
+        ");
+        $history_stats = $history_stats_query->fetchAll(PDO::FETCH_ASSOC);
+
+        // 5. Données pour le graphique de répartition par catégorie
+        $category_stats_query = $pdo->query("
+            SELECT c.name, COUNT(m.id) as count 
+            FROM materials m 
+            JOIN categories c ON m.category_id = c.id 
+            WHERE m.deleted_at IS NULL 
+            GROUP BY c.name
+        ");
+        $category_stats = $category_stats_query->fetchAll(PDO::FETCH_ASSOC);
+
+        // 6. Données pour le graphique d'évolution (12 derniers mois)
+        // Générer les 12 derniers mois
+        $months = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $months[] = date('Y-m', strtotime("-$i months"));
+        }
+
+        // Attributions par mois
+        $assignments_stats = $pdo->query("
+            SELECT DATE_FORMAT(assigned_at, '%Y-%m') as month, COUNT(*) as count 
+            FROM assignments 
+            WHERE assigned_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH) 
+            GROUP BY month
+        ")->fetchAll(PDO::FETCH_KEY_PAIR);
+
+        // Retours par mois
+        $returns_stats = $pdo->query("
+            SELECT DATE_FORMAT(returned_at, '%Y-%m') as month, COUNT(*) as count 
+            FROM assignments 
+            WHERE returned_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH) 
+            GROUP BY month
+        ")->fetchAll(PDO::FETCH_KEY_PAIR);
+
+        // Aligner les données avec les mois
+        $history_labels = [];
+        $history_assignments = [];
+        $history_returns = [];
+
+        foreach ($months as $month) {
+            $history_labels[] = date('M Y', strtotime($month . '-01')); // Ex: Jan 2024
+            $history_assignments[] = $assignments_stats[$month] ?? 0;
+            $history_returns[] = $returns_stats[$month] ?? 0;
+        }
+
         $this->view('dashboard/index', [
             'stats' => $stats,
             'total_agents' => $total_agents,
             'recent_assignments' => $recent_assignments,
-            'recent_returns' => $recent_returns
+            'recent_returns' => $recent_returns,
+            'category_stats' => $category_stats,
+            'history_labels' => $history_labels,
+            'history_assignments' => $history_assignments,
+            'history_returns' => $history_returns
         ]);
     }
 }

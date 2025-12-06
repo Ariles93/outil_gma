@@ -103,10 +103,6 @@
                             <?php endif; ?>
                         </td>
                         <td>
-                            <?php if (in_array($_SESSION['user_role'], ['admin', 'gestionnaire'])): ?>
-                                <a href="<?= url('materials/edit?id=' . $material['id']) ?>"
-                                    class="btn btn-sm btn-primary">Modifier</a>
-                            <?php endif; ?>
                             <?php if ($_SESSION['user_role'] === 'admin'): ?>
                                 <form method="post" action="<?= url('materials/delete') ?>" style="display:inline;"
                                     onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce matériel ?');">

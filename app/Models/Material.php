@@ -32,13 +32,14 @@ class Material extends Model
 
     public function create($data)
     {
-        $stmt = $this->db->prepare("INSERT INTO materials (category_id, brand, model, serial_number, inventory_number, status, purchase_date, warranty_expiry, cost, notes) VALUES (?, ?, ?, ?, ?, 'available', ?, ?, ?, ?)");
+        $stmt = $this->db->prepare("INSERT INTO materials (category_id, brand, model, serial_number, inventory_number, asset_tag, status, purchase_date, warranty_expiry, cost, notes) VALUES (?, ?, ?, ?, ?, ?, 'available', ?, ?, ?, ?)");
         $stmt->execute([
             $data['category_id'],
             $data['brand'],
             $data['model'],
             $data['serial_number'],
             $data['inventory_number'],
+            $data['asset_tag'] ?? null,
             $data['purchase_date'] ?? null,
             $data['warranty_expiry'] ?? null,
             $data['cost'] ?? null,
@@ -49,13 +50,14 @@ class Material extends Model
 
     public function update($id, $data)
     {
-        $stmt = $this->db->prepare("UPDATE materials SET category_id = ?, brand = ?, model = ?, serial_number = ?, inventory_number = ?, purchase_date = ?, warranty_expiry = ?, cost = ?, notes = ? WHERE id = ?");
+        $stmt = $this->db->prepare("UPDATE materials SET category_id = ?, brand = ?, model = ?, serial_number = ?, inventory_number = ?, asset_tag = ?, purchase_date = ?, warranty_expiry = ?, cost = ?, notes = ? WHERE id = ?");
         return $stmt->execute([
             $data['category_id'],
             $data['brand'],
             $data['model'],
             $data['serial_number'],
             $data['inventory_number'],
+            $data['asset_tag'] ?? null,
             $data['purchase_date'] ?? null,
             $data['warranty_expiry'] ?? null,
             $data['cost'] ?? null,
@@ -172,26 +174,38 @@ class Material extends Model
         $params = [];
 
         if ($query !== '') {
-            $exact_q = strtolower($query);
-            $like_q = '%' . strtolower($query) . '%';
+            $exact_q = $query;
+            $like_q = '%' . $query . '%';
 
+            // PDO::ATTR_EMULATE_PREPARES is false, so we cannot reuse named parameters.
+            // We must use unique names for every occurrence.
             $sql .= "
-                AND (LOWER(m.serial_number) LIKE :like_q 
-                     OR LOWER(m.asset_tag) LIKE :like_q 
-                     OR LOWER(CONCAT(c.name, ' ', m.brand, ' ', m.model)) LIKE :like_q)
+                AND (
+                    m.serial_number LIKE :like_q_1 COLLATE utf8mb4_general_ci
+                    OR m.asset_tag LIKE :like_q_2 COLLATE utf8mb4_general_ci
+                    OR CONCAT_WS(' ', c.name, m.brand, m.model) LIKE :like_q_3 COLLATE utf8mb4_general_ci
+                )
             ";
 
             $sql .= "
                 ORDER BY
                     CASE
-                        WHEN m.serial_number LIKE :exact_q THEN 1
-                        WHEN m.asset_tag LIKE :exact_q THEN 2
-                        WHEN CONCAT(c.name, ' ', m.brand, ' ', m.model) LIKE :like_q THEN 3
+                        WHEN m.serial_number LIKE :exact_q_1 COLLATE utf8mb4_general_ci THEN 1
+                        WHEN m.asset_tag LIKE :exact_q_2 COLLATE utf8mb4_general_ci THEN 2
+                        WHEN CONCAT_WS(' ', c.name, m.brand, m.model) LIKE :like_q_4 COLLATE utf8mb4_general_ci THEN 3
                         ELSE 4
                     END, 
                     c.name, m.brand
             ";
-            $params = [':exact_q' => $exact_q, ':like_q' => $like_q];
+
+            $params = [
+                ':like_q_1' => $like_q,
+                ':like_q_2' => $like_q,
+                ':like_q_3' => $like_q,
+                ':exact_q_1' => $exact_q,
+                ':exact_q_2' => $exact_q,
+                ':like_q_4' => $like_q
+            ];
         } else {
             $sql .= " ORDER BY c.name, m.brand, m.model";
         }

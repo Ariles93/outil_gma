@@ -29,7 +29,7 @@
                     <a href="<?= url('materials') ?>" class="nav-link">Matériel</a>
 
                     <?php if (isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['admin', 'gestionnaire'])): ?>
-                        <a href="<?= url('assignments') ?>" class="nav-link">Attribution</a>
+                        <a href="<?= url('assignments') ?>" class="nav-link">Attribution et Retour</a>
                     <?php endif; ?>
 
                     <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>

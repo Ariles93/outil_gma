@@ -21,8 +21,13 @@
         </div>
 
         <div class="form-group">
-            <label for="first_name">Nom complet</label>
+            <label for="first_name">Prénom</label>
             <input type="text" id="first_name" name="first_name">
+        </div>
+
+        <div class="form-group">
+            <label for="last_name">Nom</label>
+            <input type="text" id="last_name" name="last_name">
         </div>
 
         <div class="form-group">

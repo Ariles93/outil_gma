@@ -90,7 +90,7 @@ Ces fichiers ne sont pas des paquets mais sont essentiels au fonctionnement.
                       le serveur se connecte au domaine Active Directory.
 
 ----------------------------------------------------------------------
-Cette liste constitue l'environnement complet nécessaire au déploiement et 
+Cette liste non exhaustive constitue l'environnement complet nécessaire au déploiement et 
 au bon fonctionnement de l'application.
 
 Dompdf version récente pour générer PDF en PHP

@@ -36,17 +36,6 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  animation: zoom-bg 8s ease-in-out infinite alternate;
-}
-
-@keyframes zoom-bg {
-  from {
-    background-size: 100%;
-  }
-
-  to {
-    background-size: 120%;
-  }
 }
 
 /* =========================================================

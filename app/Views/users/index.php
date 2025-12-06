@@ -11,6 +11,7 @@
     <table class="data-table">
         <thead>
             <tr>
+                <th>Prénom</th>
                 <th>Nom</th>
                 <th>Email</th>
                 <th>Rôle</th>
@@ -21,6 +22,7 @@
             <?php foreach ($users as $user): ?>
                 <tr>
                     <td><?= e($user['first_name']) ?></td>
+                    <td><?= e($user['last_name']) ?></td>
                     <td><?= e($user['email']) ?></td>
                     <td>
                         <?php

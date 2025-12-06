@@ -41,6 +41,7 @@ class UsersController extends Controller
         $password = $_POST['password'] ?? '';
         $role = $_POST['role'] ?? 'user';
         $firstName = trim($_POST['first_name'] ?? '');
+        $lastName = trim($_POST['last_name'] ?? '');
 
         if (empty($email) || empty($password)) {
             $this->view('users/create', ['error' => 'Email et mot de passe obligatoires.']);
@@ -54,7 +55,7 @@ class UsersController extends Controller
             return;
         }
 
-        $userModel->create($email, $password, $role, $firstName);
+        $userModel->create($email, $password, $role, $firstName, $lastName);
         $this->redirect('users');
     }
 
@@ -89,6 +90,7 @@ class UsersController extends Controller
         $email = trim($_POST['email'] ?? '');
         $role = $_POST['role'] ?? 'user';
         $firstName = trim($_POST['first_name'] ?? '');
+        $lastName = trim($_POST['last_name'] ?? '');
         $password = $_POST['password'] ?? '';
 
         if (empty($email)) {
@@ -99,7 +101,7 @@ class UsersController extends Controller
         }
 
         $userModel = new User();
-        $userModel->update($id, $email, $role, $firstName, $password);
+        $userModel->update($id, $email, $role, $firstName, $lastName, $password);
 
         $this->redirect('users');
     }

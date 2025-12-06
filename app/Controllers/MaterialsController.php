@@ -96,6 +96,7 @@ class MaterialsController extends Controller
             'model' => trim($_POST['model'] ?? ''),
             'serial_number' => trim($_POST['serial_number'] ?? ''),
             'inventory_number' => trim($_POST['inventory_number'] ?? ''),
+            'asset_tag' => trim($_POST['asset_tag'] ?? ''),
             'purchase_date' => !empty($_POST['purchase_date']) ? $_POST['purchase_date'] : null,
             'warranty_expiry' => !empty($_POST['warranty_expiry']) ? $_POST['warranty_expiry'] : null,
             'cost' => $_POST['cost'] ?? null,
@@ -166,6 +167,7 @@ class MaterialsController extends Controller
             'model' => trim($_POST['model'] ?? ''),
             'serial_number' => trim($_POST['serial_number'] ?? ''),
             'inventory_number' => trim($_POST['inventory_number'] ?? ''),
+            'asset_tag' => trim($_POST['asset_tag'] ?? ''),
             'purchase_date' => !empty($_POST['purchase_date']) ? $_POST['purchase_date'] : null,
             'warranty_expiry' => !empty($_POST['warranty_expiry']) ? $_POST['warranty_expiry'] : null,
             'cost' => $_POST['cost'] ?? null,
@@ -229,12 +231,18 @@ class MaterialsController extends Controller
 
     public function apiSearch()
     {
-        $q = trim($_GET['q'] ?? '');
-        $materialModel = new Material();
-        $results = $materialModel->search($q);
+        try {
+            $q = trim($_GET['q'] ?? '');
+            $materialModel = new Material();
+            $results = $materialModel->search($q);
 
-        header('Content-Type: application/json');
-        echo json_encode(['results' => $results]);
+            header('Content-Type: application/json');
+            echo json_encode(['results' => $results]);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+        }
         exit;
     }
 }
