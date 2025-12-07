@@ -45,6 +45,10 @@ require_once __DIR__ . '/app/Models/User.php';
 require_once __DIR__ . '/app/Models/Log.php';
 require_once __DIR__ . '/app/Models/Category.php';
 
+// Core Services
+require_once __DIR__ . '/app/Core/Logger.php';
+\App\Core\Logger::init(__DIR__ . '/app/logs/error.log');
+
 // Controllers
 require_once __DIR__ . '/app/Controllers/AuthController.php';
 require_once __DIR__ . '/app/Controllers/DashboardController.php';
@@ -131,5 +135,32 @@ $router->get('/api/materials/search', [MaterialsController::class, 'apiSearch'])
 // 12. Legal
 $router->get('/cgu', [LegalController::class, 'cgu']);
 
-// 11. Dispatch
-$router->dispatch();
+// Secure Headers
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+
+try {
+    // 11. Dispatch
+    $router->dispatch();
+} catch (\Throwable $e) {
+    // Log the error
+    if (class_exists('App\Core\Logger')) {
+        \App\Core\Logger::error($e->getMessage(), [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+
+    // Show a generic error page in production, or specific error in dev
+    // For now, we'll just show a polite message and 500
+    http_response_code(500);
+    if ($_ENV['APP_ENV'] === 'dev') {
+        echo "<h1>Erreur Serveur</h1>";
+        echo "<pre>" . e($e->getMessage()) . "</pre>";
+    } else {
+        echo "<h1>Une erreur est survenue</h1><p>Veuillez réessayer plus tard.</p>";
+    }
+}

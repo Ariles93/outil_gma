@@ -68,7 +68,8 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="materials-table-body" hx-get="<?= url('materials') ?>?<?= http_build_query($_GET) ?>"
+            hx-trigger="every 10s" hx-select="#materials-table-body" hx-swap="outerHTML">
             <?php if (empty($materials)): ?>
                 <tr>
                     <td colspan="6" style="text-align:center; padding: 2rem;">Aucun matériel trouvé.</td>

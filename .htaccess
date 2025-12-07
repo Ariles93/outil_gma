@@ -1,18 +1,28 @@
+# Deny access to sensitive files and directories
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+    
+    # Allow .htaccess (though usually denied by default, good to be explicit if needed, but actually we want to hide it)
+    <Files ".htaccess">
+        Require all denied
+    </Files>
+
+    # Block access to app and vendor directories
+    RedirectMatch 403 ^/app/
+    RedirectMatch 403 ^/vendor/
+    RedirectMatch 403 ^/composer\.(json|lock)$
+    RedirectMatch 403 ^/.*\.env$
+</IfModule>
+
+# Handle routing
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /gestion-materiel/public/
-
-    # Handle Authorization Header
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-    # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [L,R=301]
-
-    # Send Requests To Front Controller...
-    RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
 </IfModule>
+
+# Prevent directory listing
+Options -Indexes
