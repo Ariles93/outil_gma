@@ -128,6 +128,7 @@ $router->post('/trash/restore', [TrashController::class, 'restore']);
 // 9. Exports
 $router->get('/exports/materials', [ExportsController::class, 'exportMaterials']);
 $router->get('/exports/agents', [ExportsController::class, 'exportAgents']);
+$router->get('/exports/logs', [ExportsController::class, 'exportLogs']);
 
 // 10. API
 $router->get('/api/materials/search', [MaterialsController::class, 'apiSearch']);

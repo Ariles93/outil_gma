@@ -38,4 +38,15 @@ class Log extends Model
         $stmt = $this->db->prepare("INSERT INTO logs (user_id, action, details, created_at) VALUES (?, ?, ?, NOW())");
         $stmt->execute([$userId, $action, $details]);
     }
+
+    public function findAll()
+    {
+        $stmt = $this->db->query("
+            SELECT l.*, u.email as user_email
+            FROM logs l
+            LEFT JOIN users u ON l.user_id = u.id
+            ORDER BY l.created_at DESC
+        ");
+        return $stmt->fetchAll();
+    }
 }

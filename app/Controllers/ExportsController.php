@@ -72,4 +72,32 @@ class ExportsController extends Controller
         fclose($output);
         exit;
     }
+
+    public function exportLogs()
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+            $this->redirect('login');
+        }
+
+        $logModel = new \App\Models\Log();
+        $logs = $logModel->findAll();
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="audit_logs_' . date('Y-m-d') . '.csv"');
+
+        $output = fopen('php://output', 'w');
+        fputcsv($output, ['Date', 'Utilisateur', 'Action', 'Détails']);
+
+        foreach ($logs as $log) {
+            fputcsv($output, [
+                $log['created_at'],
+                $log['user_email'] ?? 'Système',
+                $log['action'],
+                $log['details']
+            ]);
+        }
+
+        fclose($output);
+        exit;
+    }
 }

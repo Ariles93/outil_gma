@@ -18,15 +18,63 @@
 <?php endif; ?>
 
 <div class="form-container" style="margin-bottom: 1.5rem;">
-    <form method="get" action="<?= url('materials') ?>">
-        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-            <input name="q" placeholder="Rechercher..." type="text" value="<?= e($search ?? '') ?>"
-                style="min-width: 300px; flex-grow: 1;">
-            <button type="submit" class="btn btn-primary">Rechercher</button>
+    <form method="get" action="<?= url('materials') ?>" id="filter-form">
+        <!-- Main Search Row -->
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
+            <input name="q" placeholder="Rechercher (Tag, Modèle...)" type="text"
+                value="<?= e($filters['search'] ?? '') ?>" style="min-width: 300px; flex-grow: 1; padding: 0.5rem;">
+
+            <button type="submit" class="btn btn-primary">Rechercher / Filtrer</button>
             <a href="<?= url('materials') ?>" class="btn btn-secondary">Réinitialiser</a>
             <a href="<?= url('exports/materials') ?>?<?= http_build_query($_GET) ?>" class="btn btn-secondary"
                 target="_blank">Exporter CSV</a>
         </div>
+
+        <!-- Advanced Filters Row -->
+        <details>
+            <summary style="cursor: pointer; margin-bottom: 1rem; color: var(--primary-color);">Filtres Avancés
+            </summary>
+            <div
+                style="display: flex; gap: 1rem; flex-wrap: wrap; padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 8px;">
+
+                <!-- Category Filter -->
+                <div style="display: flex; flex-direction: column;">
+                    <label for="category_id" style="font-size: 0.8rem; margin-bottom: 4px;">Catégorie</label>
+                    <select name="category_id" id="category_id" style="padding: 0.4rem;">
+                        <option value="">Toutes</option>
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?= $cat['id'] ?>" <?= (isset($filters['category_id']) && $filters['category_id'] == $cat['id']) ? 'selected' : '' ?>>
+                                <?= e($cat['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div style="display: flex; flex-direction: column;">
+                    <label for="status" style="font-size: 0.8rem; margin-bottom: 4px;">Statut</label>
+                    <select name="status" id="status" style="padding: 0.4rem;">
+                        <option value="">Tous</option>
+                        <option value="available" <?= (isset($filters['status']) && $filters['status'] === 'available') ? 'selected' : '' ?>>Disponible</option>
+                        <option value="assigned" <?= (isset($filters['status']) && $filters['status'] === 'assigned') ? 'selected' : '' ?>>Attribué</option>
+                        <option value="maintenance" <?= (isset($filters['status']) && $filters['status'] === 'maintenance') ? 'selected' : '' ?>>En maintenance</option>
+                        <option value="broken" <?= (isset($filters['status']) && $filters['status'] === 'broken') ? 'selected' : '' ?>>Hors service</option>
+                    </select>
+                </div>
+
+                <!-- Date Range -->
+                <div style="display: flex; flex-direction: column;">
+                    <label for="date_min" style="font-size: 0.8rem; margin-bottom: 4px;">Acheté après le</label>
+                    <input type="date" name="date_min" id="date_min" value="<?= e($filters['date_min'] ?? '') ?>">
+                </div>
+
+                <div style="display: flex; flex-direction: column;">
+                    <label for="date_max" style="font-size: 0.8rem; margin-bottom: 4px;">Acheté avant le</label>
+                    <input type="date" name="date_max" id="date_max" value="<?= e($filters['date_max'] ?? '') ?>">
+                </div>
+
+            </div>
+        </details>
     </form>
 </div>
 

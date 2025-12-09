@@ -36,67 +36,91 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Data for Categories
-    const catLabels = <?= json_encode(array_column($category_stats, 'name')) ?>;
-    const catData = <?= json_encode(array_column($category_stats, 'count')) ?>;
+    function initCharts() {
+        // Data for Categories
+        const catLabels = <?= json_encode(array_column($category_stats, 'name')) ?>;
+        const catData = <?= json_encode(array_column($category_stats, 'count')) ?>;
 
-    new Chart(document.getElementById('categoryChart'), {
-        type: 'doughnut',
-        data: {
-            labels: catLabels,
-            datasets: [{
-                data: catData,
-                backgroundColor: [
-                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'
-                ],
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom' }
-            }
+        // Destroy existing chart if it exists
+        const catCtx = document.getElementById('categoryChart');
+        if (Chart.getChart(catCtx)) {
+            Chart.getChart(catCtx).destroy();
         }
-    });
 
-    // Data for History
-    const histLabels = <?= json_encode($history_labels) ?>;
-    const histAssignData = <?= json_encode($history_assignments) ?>;
-    const histReturnData = <?= json_encode($history_returns) ?>;
-
-    new Chart(document.getElementById('historyChart'), {
-        type: 'line',
-        data: {
-            labels: histLabels,
-            datasets: [
-                {
-                    label: 'Attributions',
-                    data: histAssignData,
-                    borderColor: '#4e73df',
-                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Retours',
-                    data: histReturnData,
-                    borderColor: '#e74a3b',
-                    backgroundColor: 'rgba(231, 74, 59, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        new Chart(catCtx, {
+            type: 'doughnut',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    data: catData,
+                    backgroundColor: [
+                        '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'
+                    ],
+                    hoverOffset: 4
+                }]
             },
-            interaction: {
-                mode: 'index',
-                intersect: false,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
             }
+        });
+
+        // Data for History
+        const histLabels = <?= json_encode($history_labels) ?>;
+        const histAssignData = <?= json_encode($history_assignments) ?>;
+        const histReturnData = <?= json_encode($history_returns) ?>;
+
+        // Destroy existing chart if it exists
+        const histCtx = document.getElementById('historyChart');
+        if (Chart.getChart(histCtx)) {
+            Chart.getChart(histCtx).destroy();
+        }
+
+        new Chart(histCtx, {
+            type: 'line',
+            data: {
+                labels: histLabels,
+                datasets: [
+                    {
+                        label: 'Attributions',
+                        data: histAssignData,
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Retours',
+                        data: histReturnData,
+                        borderColor: '#e74a3b',
+                        backgroundColor: 'rgba(231, 74, 59, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            }
+        });
+    }
+
+    // Initialize on first load
+    document.addEventListener('DOMContentLoaded', initCharts);
+
+    // Re-initialize after HTMX content swap
+    document.addEventListener('htmx:afterSwap', function (event) {
+        if (document.getElementById('categoryChart')) {
+            initCharts();
         }
     });
 </script>

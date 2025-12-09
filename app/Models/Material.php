@@ -89,7 +89,7 @@ class Material extends Model
         $stmt = $this->db->prepare("UPDATE materials SET deleted_at = NULL WHERE id = ?");
         return $stmt->execute([$id]);
     }
-    public function paginate($page = 1, $perPage = 10, $search = '', $sortColumn = 'id', $sortOrder = 'desc')
+    public function paginate($page = 1, $perPage = 10, $filters = [], $sortColumn = 'id', $sortOrder = 'desc')
     {
         $offset = ($page - 1) * $perPage;
         $params = [];
@@ -103,11 +103,34 @@ class Material extends Model
             WHERE m.deleted_at IS NULL
         ";
 
-        // Search Logic
-        if ($search !== '') {
+        // Filter Logic
+        // 1. Search
+        if (!empty($filters['search'])) {
             $sql .= " AND (m.asset_tag LIKE ? OR c.name LIKE ? OR m.brand LIKE ? OR m.model LIKE ? OR m.serial_number LIKE ?)";
-            $like = '%' . $search . '%';
-            $params = [$like, $like, $like, $like, $like];
+            $like = '%' . $filters['search'] . '%';
+            $params = array_merge($params, [$like, $like, $like, $like, $like]);
+        }
+
+        // 2. Category
+        if (!empty($filters['category_id'])) {
+            $sql .= " AND m.category_id = ?";
+            $params[] = $filters['category_id'];
+        }
+
+        // 3. Status
+        if (!empty($filters['status'])) {
+            $sql .= " AND m.status = ?";
+            $params[] = $filters['status'];
+        }
+
+        // 4. Purchase Date Range
+        if (!empty($filters['date_min'])) {
+            $sql .= " AND m.purchase_date >= ?";
+            $params[] = $filters['date_min'];
+        }
+        if (!empty($filters['date_max'])) {
+            $sql .= " AND m.purchase_date <= ?";
+            $params[] = $filters['date_max'];
         }
 
         // Count Total
@@ -116,7 +139,7 @@ class Material extends Model
         $total = $countStmt->fetchColumn();
 
         // Sorting Logic
-        $allowedColumns = ['category_name', 'model', 'status', 'agent_name', 'id'];
+        $allowedColumns = ['category_name', 'model', 'status', 'agent_name', 'id', 'purchase_date'];
         if (!in_array($sortColumn, $allowedColumns)) {
             $sortColumn = 'id';
         }
@@ -131,6 +154,8 @@ class Material extends Model
             $orderBy = "m.brand $sortOrder, m.model";
         } elseif ($sortColumn === 'status') {
             $orderBy = "m.status $sortOrder";
+        } elseif ($sortColumn === 'purchase_date') {
+            $orderBy = "m.purchase_date $sortOrder";
         } else {
             $orderBy = "m.id $sortOrder";
         }

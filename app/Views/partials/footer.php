@@ -44,21 +44,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-        const internalLinks = document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="#"])');
-
-        internalLinks.forEach(link => {
-            link.addEventListener('click', function (event) {
-                const url = this.href;
-                if (event.metaKey || event.ctrlKey || url.includes('.pdf')) {
-                    return;
-                }
-                event.preventDefault();
-                document.body.classList.add('fade-out');
-                setTimeout(() => {
-                    window.location.href = url;
-                }, 300);
-            });
-        });
+        // Optional: Manual overrides if needed, but HTMX handles navigation now.
     });
 </script>
 </body>

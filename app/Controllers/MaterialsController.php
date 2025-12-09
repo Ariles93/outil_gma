@@ -16,20 +16,33 @@ class MaterialsController extends Controller
         }
 
         $page = (int) ($_GET['page'] ?? 1);
-        $search = trim($_GET['q'] ?? '');
         $sortColumn = $_GET['sort'] ?? 'id';
         $sortOrder = $_GET['order'] ?? 'desc';
+
+        // Collect Filters
+        $filters = [
+            'search' => trim($_GET['q'] ?? ''),
+            'category_id' => $_GET['category_id'] ?? '',
+            'status' => $_GET['status'] ?? '',
+            'date_min' => $_GET['date_min'] ?? '',
+            'date_max' => $_GET['date_max'] ?? ''
+        ];
 
         if ($page < 1)
             $page = 1;
 
         $materialModel = new Material();
-        $pagination = $materialModel->paginate($page, 10, $search, $sortColumn, $sortOrder);
+        $pagination = $materialModel->paginate($page, 10, $filters, $sortColumn, $sortOrder);
+
+        // Fetch categories for the filter dropdown
+        $pdo = \App\Config\Database::getInstance()->getConnection();
+        $categories = $pdo->query("SELECT * FROM categories ORDER BY name")->fetchAll();
 
         $this->view('materials/index', [
             'materials' => $pagination['data'],
             'pagination' => $pagination,
-            'search' => $search,
+            'filters' => $filters, // Pass filters back to view
+            'categories' => $categories, // Pass categories for dropdown
             'sortColumn' => $sortColumn,
             'sortOrder' => $sortOrder
         ]);
