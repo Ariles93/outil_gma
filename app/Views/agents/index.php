@@ -1,97 +1,134 @@
 <?php include __DIR__ . '/../partials/header.php'; ?>
 
-<?php if (isset($_SESSION['error_message'])): ?>
-    <div class="alert alert-error"><?= e($_SESSION['error_message']) ?></div>
-    <?php unset($_SESSION['error_message']); ?>
-<?php endif; ?>
-
-<?php if (isset($_SESSION['success_message'])): ?>
-    <div class="alert alert-success"><?= e($_SESSION['success_message']) ?></div>
-    <?php unset($_SESSION['success_message']); ?>
-<?php endif; ?>
-
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+<div class="d-flex justify-between items-center mb-4">
     <h2>Rechercher un agent</h2>
-    <?php if ($_SESSION['user_role'] === 'admin'): ?>
-        <a href="<?= url('agents/create') ?>" class="btn btn-primary">+ Nouvel agent</a>
+    <?php if (in_array($_SESSION['user_role'], ['admin', 'gestionnaire'])): ?>
+        <a href="<?= url('agents/create') ?>" class="btn btn-primary">
+            + Nouvel agent
+        </a>
     <?php endif; ?>
 </div>
 
-<div class="form-container" style="margin-bottom: 2rem;">
+<div class="card mb-4">
     <form method="get" action="<?= url('agents') ?>">
-        <input name="q" placeholder="Rechercher par prénom ou nom..." type="text" value="<?= e($search ?? '') ?>">
-        <button type="submit" class="btn btn-primary">Rechercher</button>
-        <a href="<?= url('agents') ?>" class="btn btn-secondary">Réinitialiser</a>
-        <a href="<?= url('exports/agents') ?>" class="btn btn-secondary">Exporter CSV</a>
+        <div class="d-flex gap-4 items-center flex-wrap">
+            <div style="flex-grow: 1;">
+                <input name="q" placeholder="Rechercher par prénom, nom, matricule..." type="search"
+                    value="<?= e($search ?? '') ?>" class="w-full">
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+                <a href="<?= url('agents') ?>" class="btn btn-secondary">Réinitialiser</a>
+                <a href="<?= url('exports/agents') ?>" class="btn btn-secondary">Export CSV</a>
+            </div>
+        </div>
     </form>
 </div>
 
-<?php if (!empty($search)): ?>
-    <h3>Résultats de la recherche pour "<?= e($search) ?>"</h3>
-<?php else: ?>
-    <h3>Derniers agents ajoutés</h3>
-<?php endif; ?>
-
-<?php if (empty($agents)): ?>
-    <p>Aucun agent trouvé.</p>
-<?php else: ?>
-    <div class="agent-results-grid">
-        <?php foreach ($agents as $agent): ?>
-            <div class="agent-card">
-                <div class="agent-card-header">
-                    <a href="<?= url('agents/view?id=' . $agent['id']) ?>"
-                        class="agent-name"><?= e($agent['first_name'] . ' ' . $agent['last_name']) ?></a>
-                    <div class="agent-position"><?= e($agent['position'] ?? 'Poste non défini') ?></div>
-                </div>
-                <div class="agent-card-body">
-                    <div class="agent-details">
-                        <span><strong>Département :</strong> <?= e($agent['department'] ?? '-') ?></span>
-                        <span><strong>Email :</strong> <?= e($agent['email'] ?? '-') ?></span>
-                        <span><strong>Téléphone :</strong> <?= e($agent['phone'] ?? '-') ?></span>
-                        <span><strong>Matricule :</strong> <?= e($agent['employee_id'] ?? '-') ?></span>
-                    </div>
-
-                    <?php
-                    $materials = $agent['materials'] ?? [];
-                    ?>
-
-                    <?php if (in_array($_SESSION['user_role'], ['admin', 'gestionnaire']) && count($materials) > 0): ?>
-                        <a href="<?= url('agents/view?id=' . $agent['id']) ?>" class="btn btn-primary"
-                            style="padding: 0.4rem 0.8rem; font-size: 0.8rem; text-align: center;">Enregistrer un retour</a>
-                    <?php endif; ?>
-                    <?php if (count($materials) == 0): ?>
-                        <a href="<?= url('agents/view?id=' . $agent['id']) ?>" class="btn btn-primary"
-                            style="padding: 0.4rem 0.8rem; font-size: 0.8rem; text-align: center;">Voir les détails</a>
-                    <?php endif; ?>
-                    <div class="agent-materials">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <h4>Matériel Actif (<?= count($materials) ?>)</h4>
-                        </div>
-                        <?php if (empty($materials)): ?>
-                            <p class="no-material">Aucun matériel actuellement attribué.</p>
-                        <?php else: ?>
-                            <ul>
-                                <?php foreach ($materials as $m): ?>
-                                    <li><?= e($m['category_name'] . ' ' . $m['brand'] . ' ' . $m['model']) ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        <?php endforeach; ?>
+<div class="card" style="padding: 0; overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Agent</th>
+                    <th>Poste</th>
+                    <th>Département</th>
+                    <th>Contact</th>
+                    <th>Matériel</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($agents)): ?>
+                    <tr>
+                        <td colspan="6" class="text-center p-4 text-muted">
+                            <?php if (!empty($search)): ?>
+                                Aucun résultat pour "<?= e($search) ?>"
+                            <?php else: ?>
+                                Aucun agent enregistré.
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($agents as $agent): ?>
+                        <tr>
+                            <td>
+                                <div class="d-flex items-center gap-2">
+                                    <?php
+                                    $initials = substr($agent['first_name'], 0, 1) . substr($agent['last_name'], 0, 1);
+                                    ?>
+                                    <div
+                                        style="width: 32px; height: 32px; background: #F1F5F9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #64748B; font-size: 0.75rem;">
+                                        <?= strtoupper($initials) ?>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500;">
+                                            <a href="<?= url('agents/view?id=' . $agent['id']) ?>"
+                                                style="color: var(--color-text-main);">
+                                                <?= e($agent['first_name'] . ' ' . $agent['last_name']) ?>
+                                            </a>
+                                        </div>
+                                        <?php if (!empty($agent['employee_id'])): ?>
+                                            <div class="text-xs text-muted">Mat: <?= e($agent['employee_id']) ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><?= e($agent['position'] ?? '-') ?></td>
+                            <td>
+                                <?php if (!empty($agent['department'])): ?>
+                                    <span class="badge badge-neutral"><?= e($agent['department']) ?></span>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <div class="text-sm">
+                                    <?php if (!empty($agent['email'])): ?>
+                                        <a href="mailto:<?= e($agent['email']) ?>"
+                                            style="color: var(--color-primary);"><?= e($agent['email']) ?></a>
+                                    <?php endif; ?>
+                                    <?php if (!empty($agent['phone'])): ?>
+                                        <div class="text-muted text-xs"><?= e($agent['phone']) ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                            <td>
+                                <?php $materialCount = isset($agent['materials']) ? count($agent['materials']) : 0; ?>
+                                <?php if ($materialCount > 0): ?>
+                                    <span class="badge badge-neutral"><?= $materialCount ?> équipement(s)</span>
+                                <?php else: ?>
+                                    <span class="text-muted text-sm">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-right">
+                                <a href="<?= url('agents/view?id=' . $agent['id']) ?>" class="btn btn-sm btn-secondary">Voir
+                                    dossier</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 
     <?php if (isset($pagination) && $pagination['last_page'] > 1): ?>
-        <div class="pagination">
-            <?php for ($i = 1; $i <= $pagination['last_page']; $i++): ?>
-                <a href="<?= url('agents?page=' . $i . '&q=' . urlencode($search ?? '')) ?>"
-                    class="<?= $i === $pagination['current_page'] ? 'active' : '' ?>">
-                    <?= $i ?>
-                </a>
-            <?php endfor; ?>
+        <div class="d-flex justify-center gap-2 p-4 border-t" style="border-top: 1px solid var(--color-border);">
+            <?php if ($pagination['current_page'] > 1): ?>
+                <a href="<?= url('agents?page=' . ($pagination['current_page'] - 1) . '&q=' . urlencode($search ?? '')) ?>"
+                    class="btn btn-sm btn-secondary">Précédent</a>
+            <?php endif; ?>
+
+            <span class="btn btn-sm btn-secondary" style="background: none; border: none; cursor: default;">
+                Page <?= $pagination['current_page'] ?> / <?= $pagination['last_page'] ?>
+            </span>
+
+            <?php if ($pagination['current_page'] < $pagination['last_page']): ?>
+                <a href="<?= url('agents?page=' . ($pagination['current_page'] + 1) . '&q=' . urlencode($search ?? '')) ?>"
+                    class="btn btn-sm btn-secondary">Suivant</a>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
-<?php endif; ?>
+</div>
 
 <?php include __DIR__ . '/../partials/footer.php'; ?>

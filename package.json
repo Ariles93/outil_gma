@@ -1,0 +1,26 @@
+{
+  "name": "public",
+  "version": "1.0.0",
+  "description": "Ce fichier résume tous les paquets logiciels et les dépendances nécessaires \r pour faire fonctionner l'application en production sur un serveur Linux \r basé sur Debian ou Ubuntu.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ariles93/outil_gma.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ariles93/outil_gma/issues"
+  },
+  "homepage": "https://github.com/Ariles93/outil_gma#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18"
+  }
+}

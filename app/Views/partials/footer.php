@@ -1,29 +1,34 @@
 <?php
 // app/Views/partials/footer.php
 ?>
-</main>
-<footer>
-    <small>© <?= date('Y') ?> - Gestion du Matériel du Parc du Crous de Versailles. Tous droits réservés. | <a
-            href="<?= url('cgu') ?>" style="color: inherit; text-decoration: underline;">Mentions Légales &
-            CGU</a></small>
-</footer>
+        </main> <!-- End page-wrapper -->
+    </div> <!-- End main-content -->
+</div> <!-- End app-layout -->
 
 <script>
-    window.addEventListener('pageshow', function (event) {
-        if (event.persisted) {
-            window.location.reload();
+    // Sidebar Toggle Logic
+    const toggleBtn = document.querySelector('.toggle-sidebar-btn');
+    const sidebar = document.querySelector('.sidebar');
+    
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth < 768) {
+            if (sidebar.classList.contains('is-open') && 
+                !sidebar.contains(e.target) && 
+                !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove('is-open');
+            }
         }
     });
-    const navToggle = document.querySelector('.nav-toggle');
-    const navContainer = document.querySelector('.main-nav-container');
 
-    if (navToggle) {
-        navToggle.addEventListener('click', () => {
-            navToggle.classList.toggle('is-active');
-            navContainer.classList.toggle('is-active');
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('is-open');
         });
     }
 
+    // Password Visibility Toggle (for auth pages)
     document.querySelectorAll('.password-toggle-icon').forEach(toggle => {
         toggle.addEventListener('click', () => {
             const wrapper = toggle.closest('.password-wrapper');
@@ -42,11 +47,6 @@
             }
         });
     });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        // Optional: Manual overrides if needed, but HTMX handles navigation now.
-    });
 </script>
 </body>
-
 </html>

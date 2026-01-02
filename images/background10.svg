@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="60"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="#f7f9fc"/>
+
+  <path d="M-200 200 Q600 -200 1400 300"
+        fill="#ffffff" opacity="0.5" filter="url(#blur)"/>
+  <path d="M-200 600 Q600 1000 1400 500"
+        fill="#ffffff" opacity="0.4" filter="url(#blur)"/>
+</svg>
